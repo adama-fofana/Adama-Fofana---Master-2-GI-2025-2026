@@ -2,57 +2,43 @@
 \usepackage[french]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage{amsmath, amssymb, amsthm}
-\usepackage{geometry}
+\usepackage{amsmath, amssymb, amsfonts}
 \usepackage{graphicx}
-\usepackage{xcolor}
-\usepackage{listings}
-\usepackage{hyperref}
-\usepackage{titlesec}
-\usepackage{booktabs}
+\usepackage{float}
 \usepackage{caption}
 \usepackage{subcaption}
-\usepackage{float}
-\usepackage{algorithm}
-\usepackage{algorithmic}
+\usepackage{geometry}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{siunitx}
+\usepackage{mathrsfs}
 
-\geometry{a4paper, margin=2.5cm}
-\setlength{\parindent}{0pt}
-\setlength{\parskip}{1em}
-
-% Configuration des sections
-\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}
-\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
-
-% Configuration du code Python
+\geometry{margin=2.5cm}
 \lstset{
     language=Python,
-    basicstyle=\ttfamily\footnotesize,
-    keywordstyle=\color{blue}\bfseries,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
     commentstyle=\color{green!60!black},
     stringstyle=\color{red},
     numbers=left,
     numberstyle=\tiny\color{gray},
-    stepnumber=1,
-    numbersep=8pt,
-    showstringspaces=false,
+    frame=single,
     breaklines=true,
-    frame=lines,
-    backgroundcolor=\color{gray!10},
-    captionpos=b,
-    tabsize=4
+    captionpos=b
 }
 
-\title{Présentation des Travaux Numériques : Intégration et Équations Différentielles}
-\author{Votre Nom - Étudiant en Mathématiques Numériques}
-\date{\today}
+\title{Rapport d'Analyse Numérique : \\ Comparaison des Méthodes de Résolution \\ d'Équations Différentielles et d'Intégration Numérique}
+\author{Fofana Adama \\ Master 2 Génie Informatique \\ Université Nangui Abrogoua}
+\date{30 décembre 2024}
 
 \begin{document}
 
 \maketitle
 
 \begin{abstract}
-Ce document présente deux travaux numériques réalisés en Python. Le premier concerne la comparaison de différentes méthodes d'intégration numérique, tandis que le second traite de la résolution d'équations différentielles par diverses méthodes. Les implémentations, résultats et analyses sont détaillés, accompagnés de graphiques explicatifs.
+Ce rapport présente une étude comparative des méthodes numériques pour la résolution d'équations différentielles ordinaires et le calcul d'intégrales. Trois méthodes de résolution d'EDO (Euler explicite, Heun et Runge-Kutta d'ordre 4) sont comparées sur trois équations différentielles test. Parallèlement, cinq méthodes d'intégration numérique (Gauss-Legendre, Gauss-Laguerre, Gauss-Chebyshev, Simpson composite et spline cubique) sont évaluées sur quatre fonctions tests. Les critères de comparaison incluent la précision, le temps d'exécution et le taux de convergence.
 \end{abstract}
 
 \tableofcontents
@@ -60,308 +46,315 @@ Ce document présente deux travaux numériques réalisés en Python. Le premier 
 \newpage
 
 \section{Introduction}
+\subsection{Contexte académique}
+Ce travail s'inscrit dans le cadre du cours de Calcul Numérique (Analyse Numérique) du Master 2 Génie Informatique de l'Université Nangui Abrogoua. L'objectif est d'implémenter et de comparer différentes méthodes numériques fondamentales.
 
-Cette présentation décrit deux projets de calcul numérique :
-\begin{enumerate}
-    \item \textbf{Intégration numérique} : Comparaison de méthodes de quadrature (Gauss-Legendre, Gauss-Laguerre, Gauss-Chebyshev, Simpson, Splines)
-    \item \textbf{Résolution d'EDO} : Implémentation et comparaison de méthodes (Euler, Heun, Runge-Kutta 4)
-\end{enumerate}
-
-\section{Partie 1 : Méthodes d'Intégration Numérique}
-
-\subsection{Objectifs et Méthodologie}
-
-L'objectif est de comparer l'efficacité de cinq méthodes d'intégration numérique sur différentes fonctions tests avec des poids spécifiques.
-
-\subsection{Méthodes Implémentées}
-
-\subsubsection{1. Quadrature de Gauss-Legendre}
-\begin{equation}
-\int_a^b f(x)dx \approx \sum_{i=1}^n w_i f(x_i)
-\end{equation}
-avec les points et poids optimaux sur $[-1, 1]$.
-
-\subsubsection{2. Quadrature de Gauss-Laguerre}
-Pour les intégrales sur $[0, \infty)$ avec poids $e^{-x}$ :
-\begin{equation}
-\int_0^\infty e^{-x}f(x)dx \approx \sum_{i=1}^n w_i f(x_i)
-\end{equation}
-
-\subsubsection{3. Quadrature de Gauss-Chebyshev}
-Pour les intégrales sur $[-1, 1]$ avec poids $1/\sqrt{1-x^2}$ :
-\begin{equation}
-\int_{-1}^1 \frac{f(x)}{\sqrt{1-x^2}}dx \approx \sum_{i=1}^n w_i f(x_i)
-\end{equation}
-
-\subsubsection{4. Méthode Composite de Simpson}
-\begin{equation}
-\int_a^b f(x)dx \approx \frac{h}{3}\left[f(x_0) + f(x_n) + 4\sum_{i=1}^{n/2} f(x_{2i-1}) + 2\sum_{i=1}^{n/2-1} f(x_{2i})\right]
-\end{equation}
-
-\subsubsection{5. Intégration par Spline Cubique}
-Approximation de $f(x)$ par une spline cubique $S(x)$, puis intégration analytique.
-
-\subsection{Implémentation Python}
-
-\lstinputlisting[caption={Classe principale d'intégration numérique}, label={lst:integ_class}]{code_integration_part1.py}
-
-\subsection{Fonctions Tests}
-
+\subsection{Objectifs}
 \begin{itemize}
-    \item \textbf{Fonction Chebyshev} : $f(x) = \cos(10x)$ sur $[-1,1]$ avec poids $1/\sqrt{1-x^2}$
-    \item \textbf{Fonction Laguerre} : $f(x) = 1/(1+x^2)$ sur $[0,\infty)$ avec poids $e^{-x}$
-    \item \textbf{Fonction Combinée} : $f(x) = \cos(x)$ sur $[0,1)$
-    \item \textbf{Fonction Neutre} : $f(x) = 1/(1+25x^2)$ sur $[-1,1]$
+    \item Implémenter les méthodes de résolution d'équations différentielles ordinaires
+    \item Implémenter les méthodes d'intégration numérique par quadrature
+    \item Comparer les performances en termes de précision et de temps d'exécution
+    \item Analyser la convergence des différentes méthodes
+    \item Identifier les méthodes les plus adaptées à différents types de problèmes
 \end{itemize}
 
-\subsection{Résultats et Analyse}
+\section{Théorie Mathématique}
 
-\subsubsection{Performances en Précision}
+\subsection{Équations Différentielles Ordinaires (EDO)}
+Une équation différentielle ordinaire du premier ordre s'écrit :
+\[
+\frac{dy}{dx} = f(x, y), \quad y(x_0) = y_0
+\]
 
-\begin{table}[H]
-\centering
-\begin{tabular}{lcccc}
-\toprule
-Méthode & Fonction Chebyshev & Fonction Laguerre & Fonction Combinée & Fonction Neutre \\
-\midrule
-Gauss-Legendre & 2.3e-05 & 1.8e-04 & 4.2e-06 & \textbf{1.1e-07} \\
-Gauss-Laguerre & N/A & \textbf{5.6e-08} & N/A & N/A \\
-Gauss-Chebyshev & \textbf{8.9e-09} & N/A & \textbf{2.3e-09} & 3.4e-06 \\
-Simpson & 1.2e-04 & 6.7e-05 & 8.9e-05 & 2.3e-05 \\
-Spline & 3.4e-05 & 2.1e-04 & 4.5e-05 & 1.2e-05 \\
-\bottomrule
-\end{tabular}
-\caption{Erreurs absolues minimales obtenues (n=128)}
-\end{table}
-
-\subsubsection{Temps d'Exécution}
-
-\begin{table}[H]
-\centering
-\begin{tabular}{lcc}
-\toprule
-Méthode & Temps moyen (s) & Complexité \\
-\midrule
-Gauss-Legendre & 0.00015 & $\mathcal{O}(n)$ \\
-Gauss-Laguerre & 0.00012 & $\mathcal{O}(n)$ \\
-Gauss-Chebyshev & 0.00013 & $\mathcal{O}(n)$ \\
-Simpson & 0.00045 & $\mathcal{O}(n)$ \\
-Spline & 0.00120 & $\mathcal{O}(n^3)$ \\
-\bottomrule
-\end{tabular}
-\caption{Comparaison des temps d'exécution (n=64)}
-\end{table}
-
-\subsubsection{Graphiques de Convergence}
-
-\begin{figure}[H]
-\centering
-\begin{subfigure}{0.49\textwidth}
-\includegraphics[width=\textwidth]{graphiques_erreurs.png}
-\caption{Erreurs en fonction de n}
-\end{subfigure}
-\begin{subfigure}{0.49\textwidth}
-\includegraphics[width=\textwidth]{graphiques_temps.png}
-\caption{Temps d'exécution en fonction de n}
-\end{subfigure}
-\caption{Comparaison des performances des méthodes}
-\end{figure}
-
-\subsection{Conclusion Partie 1}
-
-\begin{itemize}
-    \item Les méthodes de Gauss adaptées au poids sont les plus efficaces
-    \item Gauss-Chebyshev est optimale pour les poids $1/\sqrt{1-x^2}$
-    \item Gauss-Laguerre est optimale pour les poids $e^{-x}$ sur $[0,\infty)$
-    \item Simpson est une bonne méthode générale pour les fonctions régulières
-    \item Spline est coûteuse mais utile quand on a besoin d'interpolation
-\end{itemize}
-
-\newpage
-
-\section{Partie 2 : Résolution d'Équations Différentielles}
-
-\subsection{Équations Étudiées}
-
-\subsubsection{Équation 1 : Croissance exponentielle}
-\begin{equation}
-z'(x) = 0.1 \cdot x \cdot z(x), \quad z(0) = 1
-\end{equation}
-Solution exacte : $z(x) = e^{0.05x^2}$
-
-\subsubsection{Équation 2 : Équation avec singularité}
-\begin{equation}
-z'(x) = \frac{1 - 30x}{2\sqrt{x}} + 15z(x), \quad z(0.01) = \sqrt{0.01}
-\end{equation}
-Solution exacte : $z(x) = \sqrt{x}$
-
-\subsubsection{Équation 3 : Équation oscillante}
-\begin{equation}
-z'(x) = \pi \cos(\pi x) z(x), \quad z(0) = 1
-\end{equation}
-Solution exacte : $z(x) = e^{\sin(\pi x)}$
-
-\subsection{Méthodes Implémentées}
-
-\subsubsection{Méthode d'Euler (ordre 1)}
-\begin{equation}
+\subsubsection{Méthode d'Euler explicite}
+La méthode d'Euler explicite est donnée par :
+\[
 y_{n+1} = y_n + h f(x_n, y_n)
-\end{equation}
+\]
+où $h$ est le pas d'intégration.
 
-\subsubsection{Méthode de Heun (ordre 2)}
-\begin{equation}
-\begin{aligned}
+\subsubsection{Méthode de Heun (Euler amélioré)}
+La méthode de Heun utilise une prédiction-corréction :
+\begin{align*}
 k_1 &= f(x_n, y_n) \\
 k_2 &= f(x_n + h, y_n + h k_1) \\
 y_{n+1} &= y_n + \frac{h}{2}(k_1 + k_2)
-\end{aligned}
-\end{equation}
+\end{align*}
 
-\subsubsection{Méthode de Runge-Kutta 4 (ordre 4)}
-\begin{equation}
-\begin{aligned}
+\subsubsection{Méthode de Runge-Kutta d'ordre 4 (RK4)}
+La méthode RK4 est donnée par :
+\begin{align*}
 k_1 &= f(x_n, y_n) \\
-k_2 &= f(x_n + \frac{h}{2}, y_n + \frac{h}{2}k_1) \\
-k_3 &= f(x_n + \frac{h}{2}, y_n + \frac{h}{2}k_2) \\
+k_2 &= f\left(x_n + \frac{h}{2}, y_n + \frac{h}{2} k_1\right) \\
+k_3 &= f\left(x_n + \frac{h}{2}, y_n + \frac{h}{2} k_2\right) \\
 k_4 &= f(x_n + h, y_n + h k_3) \\
 y_{n+1} &= y_n + \frac{h}{6}(k_1 + 2k_2 + 2k_3 + k_4)
-\end{aligned}
-\end{equation}
+\end{align*}
 
-\subsection{Implémentation Python}
+\subsection{Méthodes d'Intégration Numérique}
 
-\lstinputlisting[caption={Classe SolveurEDO}, label={lst:edo_class}]{code_edo_part2.py}
+\subsubsection{Quadrature de Gauss-Legendre}
+Pour l'intégrale $\displaystyle\int_a^b f(x)\, dx$, on utilise la formule :
+\[
+\int_a^b f(x)\, dx \approx \frac{b-a}{2} \sum_{i=1}^n w_i \, f\left(\frac{b-a}{2}x_i + \frac{a+b}{2}\right)
+\]
+où $x_i$ et $w_i$ sont les points et poids de Legendre sur $[-1, 1]$.
 
-\subsection{Résultats Numériques}
+\subsubsection{Quadrature de Gauss-Laguerre}
+Pour les intégrales sur $[0, \infty)$ avec poids $e^{-x}$ :
+\[
+\int_0^\infty e^{-x} f(x)\, dx \approx \sum_{i=1}^n w_i \, f(x_i)
+\]
 
-\subsubsection{Comparaison des Erreurs (pas = 0.3)}
+\subsubsection{Quadrature de Gauss-Chebyshev}
+Pour les intégrales sur $[-1,1]$ avec poids $\dfrac{1}{\sqrt{1-x^2}}$ :
+\[
+\int_{-1}^1 \frac{f(x)}{\sqrt{1-x^2}}\, dx \approx \sum_{i=1}^n w_i \, f(x_i)
+\]
 
-\begin{table}[H]
-\centering
-\begin{tabular}{lccc}
-\toprule
-Méthode & Équation 1 & Équation 2 & Équation 3 \\
-\midrule
-Euler & 1.23e-01 & 8.45e-02 & 6.78e-02 \\
-Heun & 3.45e-03 & 2.12e-03 & 1.89e-03 \\
-Runge-Kutta 4 & 7.89e-06 & 5.67e-06 & 4.32e-06 \\
-\bottomrule
-\end{tabular}
-\caption{Erreurs absolues maximales}
-\end{table}
+\subsubsection{Méthode composite de Simpson}
+\[
+\int_a^b f(x)\, dx \approx \frac{h}{3} \left[ f(x_0) + f(x_n) + 4\sum_{i=1}^{n/2} f(x_{2i-1}) + 2\sum_{i=1}^{n/2-1} f(x_{2i}) \right]
+\]
+avec $\displaystyle h = \frac{b-a}{n}$ et $n$ pair.
 
-\subsubsection{Comparaison des Temps d'Exécution}
+\section{Implémentation}
 
-\begin{table}[H]
-\centering
-\begin{tabular}{lccc}
-\toprule
-Méthode & Équation 1 (s) & Équation 2 (s) & Équation 3 (s) \\
-\midrule
-Euler & 0.000045 & 0.000051 & 0.000048 \\
-Heun & 0.000083 & 0.000092 & 0.000087 \\
-Runge-Kutta 4 & 0.000156 & 0.000178 & 0.000162 \\
-\bottomrule
-\end{tabular}
-\caption{Temps d'exécution pour 100 itérations}
-\end{table}
-
-\subsection{Visualisations}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.8\textwidth]{solutions_edo.png}
-\caption{Comparaison des solutions pour les trois équations}
-\end{figure}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.8\textwidth]{erreurs_edo.png}
-\caption{Évolution des erreurs pour les trois méthodes}
-\end{figure}
-
-\subsection{Analyse de Convergence}
-
-Pour la méthode de Heun (ordre 2), l'erreur théorique est en $\mathcal{O}(h^2)$. Nos résultats expérimentaux confirment cet ordre :
-\begin{equation}
-\text{Erreur} \propto h^2 \quad \Rightarrow \quad \log(\text{Erreur}) \propto 2\log(h)
-\end{equation}
-
-\subsection{Conclusion Partie 2}
-
+\subsection{Structure du code Python}
+Le code est organisé en deux classes principales :
 \begin{itemize}
-    \item \textbf{Euler} : Simple et rapide mais peu précis (ordre 1)
-    \item \textbf{Heun} : Bon compromis précision/vitesse (ordre 2)
-    \item \textbf{Runge-Kutta 4} : Très précis mais plus coûteux (ordre 4)
-    \item La précision augmente avec l'ordre de la méthode
-    \item Le temps d'exécution augmente avec l'ordre
+    \item \texttt{SolveurEDO} pour les méthodes de résolution d'EDO
+    \item \texttt{IntegrationNumerique} pour les méthodes d'intégration
 \end{itemize}
 
-\section{Conclusion Générale}
+\subsection{Équations différentielles testées}
+\subsubsection{Équation 1}
+\[
+z'(x) = 0.1 x z(x), \quad z(0) = 1
+\]
+Solution exacte : $\displaystyle z(x) = e^{0.05 x^2}$
 
-\subsection{Synthèse des Résultats}
+\subsubsection{Équation 2}
+\[
+z'(x) = \frac{1 - 30x}{2\sqrt{x}} + 15z(x), \quad z(0) = 0
+\]
+Solution exacte : $\displaystyle z(x) = \sqrt{x}$
+
+\subsubsection{Équation 3}
+\[
+z'(x) = \pi \cos(\pi x) z(x), \quad z(0) = 1
+\]
+Solution exacte : $\displaystyle z(x) = e^{\sin(\pi x)}$
+
+\subsection{Fonctions d'intégration testées}
+\begin{enumerate}
+    \item \textbf{Fonction Chebyshev} : $\displaystyle f(x) = \cos(10x)$ sur $[-1, 1]$ avec poids $\dfrac{1}{\sqrt{1-x^2}}$
+    \item \textbf{Fonction Laguerre} : $\displaystyle f(x) = \frac{1}{1+x^2}$ sur $[0, \infty)$ avec poids $e^{-x}$
+    \item \textbf{Fonction combinée} : $\displaystyle f(x) = \cos(x)$ sur $[0, 1]$ avec poids $\dfrac{1}{\sqrt{1-x^2}}$
+    \item \textbf{Fonction neutre} : $\displaystyle f(x) = \frac{1}{1+25x^2}$ sur $[-1, 1]$
+\end{enumerate}
+
+\section{Résultats et Analyse}
+
+\subsection{Comparaison des méthodes pour les EDO}
+
+\subsubsection{Temps d'exécution}
+Les temps d'exécution pour chaque méthode et chaque équation sont présentés dans le tableau suivant :
 
 \begin{table}[H]
 \centering
 \begin{tabular}{lccc}
 \toprule
-Aspect & Méthodes d'Intégration & Méthodes d'EDO \\
+\textbf{Méthode} & \textbf{Équation 1 (s)} & \textbf{Équation 2 (s)} & \textbf{Équation 3 (s)} \\
 \midrule
-Meilleure précision & Gauss adapté & Runge-Kutta 4 \\
-Meilleur temps & Gauss-Legendre & Euler \\
-Meilleur compromis & Simpson & Heun \\
-Flexibilité & Spline & Runge-Kutta 4 \\
+Euler & $t_{e1}$ & $t_{e2}$ & $t_{e3}$ \\
+Heun & $t_{h1}$ & $t_{h2}$ & $t_{h3}$ \\
+Runge-Kutta 4 & $t_{rk1}$ & $t_{rk2}$ & $t_{rk3}$ \\
 \bottomrule
 \end{tabular}
-\caption{Comparaison synthétique des deux projets}
+\caption{Temps d'exécution des méthodes pour les trois équations différentielles}
+\label{tab:temps_edo}
 \end{table}
 
-\subsection{Apports Pédagogiques}
+\subsubsection{Erreurs absolues maximales}
+\begin{table}[H]
+\centering
+\begin{tabular}{lccc}
+\toprule
+\textbf{Méthode} & \textbf{Équation 1} & \textbf{Équation 2} & \textbf{Équation 3} \\
+\midrule
+Euler & $e_{e1}$ & $e_{e2}$ & $e_{e3}$ \\
+Heun & $e_{h1}$ & $e_{h2}$ & $e_{h3}$ \\
+Runge-Kutta 4 & $e_{rk1}$ & $e_{rk2}$ & $e_{rk3}$ \\
+\bottomrule
+\end{tabular}
+\caption{Erreurs absolues maximales (échelle logarithmique)}
+\label{tab:erreurs_edo}
+\end{table}
 
+\subsection{Comparaison des méthodes d'intégration}
+
+\subsubsection{Précision en fonction du nombre de points}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{graphiques_erreurs.png}
+\caption{Évolution de l'erreur en fonction du nombre de points pour les quatre fonctions tests}
+\label{fig:erreurs_integration}
+\end{figure}
+
+\subsubsection{Temps d'exécution en fonction du nombre de points}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{graphiques_temps.png}
+\caption{Évolution du temps d'exécution en fonction du nombre de points}
+\label{fig:temps_integration}
+\end{figure}
+
+\section{Discussion}
+
+\subsection{Performance des méthodes EDO}
+\begin{itemize}
+    \item \textbf{Méthode d'Euler} : La plus rapide mais la moins précise. Erreur de l'ordre de $\mathcal{O}(h)$.
+    \item \textbf{Méthode de Heun} : Compromis entre précision et temps. Erreur de l'ordre de $\mathcal{O}(h^2)$.
+    \item \textbf{Runge-Kutta 4} : La plus précise mais la plus coûteuse en temps. Erreur de l'ordre de $\mathcal{O}(h^4)$.
+\end{itemize}
+
+\subsection{Performance des méthodes d'intégration}
+\begin{itemize}
+    \item \textbf{Gauss-Chebyshev} : Excellente pour les intégrales avec poids $\dfrac{1}{\sqrt{1-x^2}}$.
+    \item \textbf{Gauss-Laguerre} : Optimale pour les intégrales sur $[0, \infty)$ avec poids $e^{-x}$.
+    \item \textbf{Gauss-Legendre} : Robuste pour les intégrales standards sur intervalles finis.
+    \item \textbf{Simpson composite} : Simple à implémenter mais nécessite plus de points.
+    \item \textbf{Spline cubique} : Coûteuse en temps mais fournit aussi une interpolation.
+\end{itemize}
+
+\subsection{Analyse de convergence}
+Les méthodes de Gauss présentent une convergence exponentielle pour les fonctions analytiques, tandis que Simpson et les splines présentent une convergence algébrique.
+
+\section{Conclusion}
+
+\subsection{Principales conclusions}
 \begin{enumerate}
-    \item Compréhension approfondie des méthodes numériques
-    \item Maîtrise de l'implémentation en Python
-    \item Analyse critique des performances
-    \item Visualisation efficace des résultats
-    \item Rédaction de rapports techniques
+    \item Pour les EDO, le choix de la méthode dépend du compromis précision/temps requis.
+    \item Runge-Kutta 4 est recommandé pour les applications nécessitant une haute précision.
+    \item Pour l'intégration numérique, les méthodes de Gauss adaptées au poids sont les plus efficaces.
+    \item Gauss-Legendre est la méthode la plus polyvalente pour les intégrales standards.
+    \item Simpson reste une bonne option pour des applications simples avec des fonctions régulières.
 \end{enumerate}
 
 \subsection{Perspectives}
-
 \begin{itemize}
+    \item Extension aux systèmes d'équations différentielles
     \item Implémentation de méthodes adaptatives
-    \item Étude des équations différentielles raides
-    \item Intégration multi-dimensionnelle
-    \item Application à des problèmes physiques concrets
+    \item Application à des problèmes physiques réels
+    \item Étude de la stabilité numérique
 \end{itemize}
 
-\section*{Annexe A : Code Complet d'Intégration Numérique}
-
-\lstinputlisting[language=Python, caption={Code complet - Intégration numérique}]{integration_complet.py}
-
-\section*{Annexe B : Code Complet de Résolution d'EDO}
-
-\lstinputlisting[language=Python, caption={Code complet - Équations différentielles}]{edo_complet.py}
-
-\section*{Bibliographie}
-
 \begin{thebibliography}{9}
-\bibitem{numrec} 
-Press, W. H., Teukolsky, S. A., Vetterling, W. T., \& Flannery, B. P. (2007). 
-\textit{Numerical Recipes: The Art of Scientific Computing}. Cambridge University Press.
-
-\bibitem{butcher}
-Butcher, J. C. (2016). 
-\textit{Numerical Methods for Ordinary Differential Equations}. John Wiley \& Sons.
-
-\bibitem{quarteroni}
-Quarteroni, A., Sacco, R., \& Saleri, F. (2007). 
-\textit{Numerical Mathematics}. Springer.
-
-\bibitem{scipy}
-Virtanen, P., \textit{et al.} (2020). 
-\textit{SciPy 1.0: fundamental algorithms for scientific computing in Python}. 
-Nature Methods, 17(3), 261-272.
+\bibitem{quarteroni} Quarteroni, A., Saleri, F., \& Gervasio, P. (2010). \emph{Calcul scientifique}.
+\bibitem{press} Press, W. H., Teukolsky, S. A., Vetterling, W. T., \& Flannery, B. P. (2007). \emph{Numerical Recipes}.
+\bibitem{atkinson} Atkinson, K. E. (2008). \emph{An Introduction to Numerical Analysis}.
+\bibitem{chapra} Chapra, S. C., \& Canale, R. P. (2010). \emph{Numerical Methods for Engineers}.
 \end{thebibliography}
+
+\appendix
+\section{Code Python complet}
+
+\subsection{Code pour les EDO}
+Voici un extrait du code Python pour les méthodes de résolution d'EDO :
+
+\begin{lstlisting}[language=Python, caption=Implémentation des méthodes de résolution d'EDO]
+class SolveurEDO:
+    def __init__(self):
+        pass
+    
+    # Méthode d'Euler explicite
+    def euler(self, f, x0, y0, h, n):
+        x = np.zeros(n+1)
+        y = np.zeros(n+1)
+        x[0] = x0
+        y[0] = y0
+        
+        for i in range(n):
+            y[i+1] = y[i] + h * f(x[i], y[i])
+            x[i+1] = x[i] + h
+        
+        return x, y
+    
+    # Méthode de Heun (Euler amélioré)
+    def heun(self, f, x0, y0, h, n):
+        x = np.zeros(n+1)
+        y = np.zeros(n+1)
+        x[0] = x0
+        y[0] = y0
+        
+        for i in range(n):
+            k1 = f(x[i], y[i])
+            k2 = f(x[i] + h, y[i] + h * k1)
+            y[i+1] = y[i] + h * (k1 + k2) / 2
+            x[i+1] = x[i] + h
+        
+        return x, y
+    
+    # Méthode de Runge-Kutta d'ordre 4
+    def runge_kutta_4(self, f, x0, y0, h, n):
+        x = np.zeros(n+1)
+        y = np.zeros(n+1)
+        x[0] = x0
+        y[0] = y0
+        
+        for i in range(n):
+            k1 = f(x[i], y[i])
+            k2 = f(x[i] + h/2, y[i] + h*k1/2)
+            k3 = f(x[i] + h/2, y[i] + h*k2/2)
+            k4 = f(x[i] + h, y[i] + h*k3)
+            
+            y[i+1] = y[i] + h * (k1 + 2*k2 + 2*k3 + k4) / 6
+            x[i+1] = x[i] + h
+        
+        return x, y
+\end{lstlisting}
+
+\subsection{Code pour l'intégration numérique}
+\begin{lstlisting}[language=Python, caption=Implémentation des méthodes d'intégration]
+class IntegrationNumerique:
+    def __init__(self):
+        pass
+    
+    # Quadrature de Gauss-Legendre
+    def gauss_legendre(self, f, a, b, n):
+        if b == np.inf:
+            def g(t):
+                x = t / (1 - t**2) if t != 1 else np.inf
+                return f(x) * (1 + t**2) / (1 - t**2)**2
+            a_tr = -0.999
+            b_tr = 0.999
+        else:
+            g = f
+            a_tr = a
+            b_tr = b
+        
+        x, w = roots_legendre(n)
+        t = 0.5 * (b_tr - a_tr) * x + 0.5 * (a_tr + b_tr)
+        integral = 0.5 * (b_tr - a_tr) * np.sum(w * g(t))
+        
+        return integral
+\end{lstlisting}
+
+\section{Annexes techniques}
+\subsection{Calcul des valeurs exactes}
+\subsubsection{Fonction de Bessel}
+Pour l'intégrale de Chebyshev :
+\[
+\int_{-1}^{1} \frac{\cos(10x)}{\sqrt{1-x^2}} \, dx = \pi J_0(10)
+\]
+où $J_0$ est la fonction de Bessel de première espèce d'ordre 0.
+
+\subsubsection{Intégrale exponentielle}
+Pour l'intégrale de Laguerre :
+\[
+\int_{0}^{\infty} \frac{e^{-x}}{1+x^2} \, dx = \text{Ci}(1)\sin(1) + \left(\frac{\pi}{2} - \text{Si}(1)\right)\cos(1)
+\]
+où Si et Ci sont les intégrales sinus et cosinus.
 
 \end{document}
