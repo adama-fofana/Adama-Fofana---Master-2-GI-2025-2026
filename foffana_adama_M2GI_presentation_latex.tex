@@ -87,7 +87,7 @@
     \vspace*{2cm}
     
     % Logo remplacé par un placeholder
-    \framebox(150,150){\parbox{150pt}{\centering\vspace{65pt}LOGO\\Université\\Nangui Abrogoua}}
+    \framebox(150,150){\parbox{150pt}{\centering\vspace{65pt}LOGO\\Universit\\Nangui Abrogoua}}
     
     \vspace{1cm}
     
@@ -114,8 +114,8 @@
     
     \vspace{1.5cm}
     
-    {\large \textbf{Encadré par :} Dr SYLVAIN ZEZE} \\
-    {\large \textbf{Année académique :} 2025-2026}
+    {\large \textbf{Encadré par :} Pr. Konan Kouassi} \\
+    {\large \textbf{Année académique :} 2024-2025}
     
     \vfill
     
@@ -812,4 +812,105 @@ class IntegrationNumerique:
     def __init__(self):
         pass
     
-    def gauss_legendre(self, f, a, b, n
+    def gauss_legendre(self, f, a, b, n):
+        """Quadrature de Gauss-Legendre"""
+        # Points et poids de Gauss-Legendre
+        x, w = roots_legendre(n)
+        
+        # Transformation de l'intervalle [-1,1] vers [a,b]
+        t = 0.5 * (b - a) * x + 0.5 * (a + b)
+        integral = 0.5 * (b - a) * np.sum(w * f(t))
+        
+        return integral
+    
+    def simpson_composite(self, f, a, b, n):
+        """Méthode composite de Simpson"""
+        # Assurer que n est pair
+        if n % 2 == 1:
+            n += 1
+        
+        h = (b - a) / n
+        x = np.linspace(a, b, n+1)
+        y = f(x)
+        
+        # Formule composite de Simpson
+        integral = h/3 * (y[0] + y[-1] + 
+                         4*np.sum(y[1:-1:2]) + 
+                         2*np.sum(y[2:-2:2]))
+        return integral
+    
+    def methode_trapezes(self, f, a, b, n):
+        """Méthode des trapèzes composite"""
+        h = (b - a) / n
+        x = np.linspace(a, b, n+1)
+        y = f(x)
+        
+        integral = h * (0.5*y[0] + 0.5*y[-1] + np.sum(y[1:-1]))
+        return integral
+
+# Fonctions tests
+def f_chebyshev(x):
+    return np.cos(10*x)
+
+def f_runge(x):
+    return 1/(1 + 25*x**2)
+
+def tester_integration():
+    integrateur = IntegrationNumerique()
+    
+    # Test avec la fonction de Runge
+    a, b = -1, 1
+    n_values = [4, 8, 16, 32, 64]
+    
+    resultats = {}
+    
+    for n in n_values:
+        # Valeur exacte (approximative)
+        exact = 2/26 * np.arctan(5)  # Pour f_runge
+        
+        # Calcul avec différentes méthodes
+        gl = integrateur.gauss_legendre(f_runge, a, b, n)
+        simp = integrateur.simpson_composite(f_runge, a, b, n)
+        trap = integrateur.methode_trapezes(f_runge, a, b, n)
+        
+        # Erreurs
+        resultats[n] = {
+            'gauss_legendre': {'valeur': gl, 'erreur': abs(gl - exact)},
+            'simpson': {'valeur': simp, 'erreur': abs(simp - exact)},
+            'trapezes': {'valeur': trap, 'erreur': abs(trap - exact)}
+        }
+    
+    return resultats
+
+if __name__ == "__main__":
+    print("COMPARAISON DES MÉTHODES D'INTÉGRATION NUMÉRIQUE")
+    print("=" * 70)
+    resultats = tester_integration()
+    
+    # Affichage des résultats
+    for n, methods in resultats.items():
+        print(f"\nNombre de points: n = {n}")
+        for methode, data in methods.items():
+            print(f"  {methode:15s}: {data['valeur']:.10f} (erreur: {data['erreur']:.2e})")
+\end{lstlisting}
+
+\subsection{Références bibliographiques}
+
+\begin{thebibliography}{9}
+\bibitem{quarteroni}
+Quarteroni, A., Saleri, F., \& Sacco, R. (2007). \emph{Méthodes numériques pour le calcul scientifique}. Springer.
+
+\bibitem{heath}
+Heath, M. T. (2018). \emph{Scientific Computing: An Introductory Survey}. SIAM.
+
+\bibitem{stroud}
+Stroud, A. H. (1971). \emph{Approximate Calculation of Multiple Integrals}. Prentice-Hall.
+
+\bibitem{press}
+Press, W. H., Teukolsky, S. A., Vetterling, W. T., \& Flannery, B. P. (2007). \emph{Numerical Recipes: The Art of Scientific Computing}. Cambridge University Press.
+
+\bibitem{suli}
+Süli, E., \& Mayers, D. F. (2003). \emph{An Introduction to Numerical Analysis}. Cambridge University Press.
+\end{thebibliography}
+
+\end{document}
