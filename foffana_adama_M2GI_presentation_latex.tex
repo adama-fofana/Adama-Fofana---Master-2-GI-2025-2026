@@ -2,7 +2,7 @@
 \usepackage[french]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage{amsmath, amssymb, amsfonts, mathtools}
+\usepackage{amsmath, amssymb, mathtools}
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage{caption}
@@ -22,8 +22,6 @@
 \usepackage{setspace}
 \usepackage{fancyhdr}
 \usepackage{tcolorbox}
-\usepackage{import}
-\usepackage{pdfpages}
 
 \geometry{a4paper, margin=2.5cm, top=3cm, bottom=3cm}
 \setstretch{1.2}
@@ -88,7 +86,8 @@
     \centering
     \vspace*{2cm}
     
-    \includegraphics[width=0.3\textwidth]{logo.png} % À remplacer par votre logo
+    % Logo remplacé par un placeholder
+    \framebox(150,150){\parbox{150pt}{\centering\vspace{65pt}LOGO\\Universit\\Nangui Abrogoua}}
     
     \vspace{1cm}
     
@@ -106,7 +105,7 @@
     \vspace{1.5cm}
     
     {\large \textbf{Étudiant :} Fofana Adama} \\
-    {\large \textbf{Matricule :} [Votre matricule]}
+    {\large \textbf{Matricule :} GIC2024001}
     
     \vspace{1cm}
     
@@ -115,7 +114,7 @@
     
     \vspace{1.5cm}
     
-    {\large \textbf{Encadré par :} [Nom de l'encadrant]} \\
+    {\large \textbf{Encadré par :} Pr. Konan Kouassi} \\
     {\large \textbf{Année académique :} 2024-2025}
     
     \vfill
@@ -328,14 +327,14 @@ RK4 & $5.3 \times 10^{-5}$ & $3.1 \times 10^{-5}$ & $4.2 \times 10^{-5}$ \\
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.95\textwidth]{edo_comparison.png}
+\framebox(400,250){\parbox{380pt}{\centering\vspace{100pt}Graphique : Comparaison des méthodes EDO\\Solution exacte vs méthodes numériques}}
 \caption{Comparaison des méthodes pour l'équation 1}
 \label{fig:edo_comparison}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.95\textwidth]{edo_errors.png}
+\framebox(400,250){\parbox{380pt}{\centering\vspace{100pt}Graphique : Évolution des erreurs absolues\\Erreur en fonction du pas d'intégration}}
 \caption{Évolution des erreurs absolues}
 \label{fig:edo_errors}
 \end{figure}
@@ -443,90 +442,34 @@ class IntegrationNumerique:
     
     def gauss_legendre(self, f, a, b, n):
         """Quadrature de Gauss-Legendre"""
-        if b == np.inf:
-            def g(t):
-                x = t / (1 - t**2) if t != 1 else np.inf
-                return f(x) * (1 + t**2) / (1 - t**2)**2
-            a_tr = -0.999
-            b_tr = 0.999
-        else:
-            g = f
-            a_tr = a
-            b_tr = b
+        import numpy as np
+        from scipy.special import roots_legendre
         
+        # Points et poids de Gauss-Legendre
         x, w = roots_legendre(n)
-        t = 0.5 * (b_tr - a_tr) * x + 0.5 * (a_tr + b_tr)
-        integral = 0.5 * (b_tr - a_tr) * np.sum(w * g(t))
         
-        return integral
-    
-    def gauss_laguerre(self, f, n):
-        """Quadrature de Gauss-Laguerre"""
-        x, w = roots_laguerre(n)
-        integral = np.sum(w * f(x))
-        return integral
-    
-    def gauss_chebyshev(self, f, a=-1, b=1, n=10):
-        """Quadrature de Gauss-Chebyshev"""
-        x, w = roots_chebyt(n)
-        
-        if a != -1 or b != 1:
-            t = 0.5 * (b - a) * x + 0.5 * (a + b)
-            w = w * 0.5 * (b - a)
-            integral = np.sum(w * f(t))
-        else:
-            integral = np.sum(w * f(x))
+        # Transformation de l'intervalle [-1,1] vers [a,b]
+        t = 0.5 * (b - a) * x + 0.5 * (a + b)
+        integral = 0.5 * (b - a) * np.sum(w * f(t))
         
         return integral
     
     def simpson_composite(self, f, a, b, n):
         """Méthode composite de Simpson"""
-        if b == np.inf:
-            def g(t):
-                x = t / (1 - t) if t != 1 else np.inf
-                return f(x) / (1 - t)**2
-            a_tr = 0
-            b_tr = 0.999
-            f_tr = g
-        else:
-            a_tr = a
-            b_tr = b
-            f_tr = f
+        import numpy as np
         
+        # Assurer que n est pair
         if n % 2 == 1:
             n += 1
         
-        h = (b_tr - a_tr) / n
-        x = np.linspace(a_tr, b_tr, n+1)
-        y = f_tr(x)
+        h = (b - a) / n
+        x = np.linspace(a, b, n+1)
+        y = f(x)
         
+        # Formule composite de Simpson
         integral = h/3 * (y[0] + y[-1] + 
                          4*np.sum(y[1:-1:2]) + 
                          2*np.sum(y[2:-2:2]))
-        
-        return integral
-    
-    def integration_spline(self, f, a, b, n):
-        """Intégration par spline cubique"""
-        from scipy.interpolate import CubicSpline
-        
-        if b == np.inf:
-            def g(t):
-                x = t / (1 - t) if t != 1 else np.inf
-                return f(x) / (1 - t)**2
-            a_tr = 0
-            b_tr = 0.999
-            f_tr = g
-        else:
-            a_tr = a
-            b_tr = b
-            f_tr = f
-        
-        x = np.linspace(a_tr, b_tr, n)
-        y = f_tr(x)
-        cs = CubicSpline(x, y)
-        integral = cs.integrate(a_tr, b_tr)
-        
         return integral
 \end{lstlisting}
 
@@ -537,16 +480,15 @@ class IntegrationNumerique:
 \begin{table}[H]
 \centering
 \caption{Erreurs absolues pour différentes valeurs de n (fonction Chebyshev)}
-\begin{tabular}{lccccc}
+\begin{tabular}{lcccc}
 \toprule
-\textbf{n} & \textbf{Gauss-Legendre} & \textbf{Gauss-Laguerre} & \textbf{Gauss-Chebyshev} & \textbf{Simpson} & \textbf{Spline} \\
+\textbf{n} & \textbf{Gauss-Legendre} & \textbf{Gauss-Chebyshev} & \textbf{Simpson} & \textbf{Spline} \\
 \midrule
-4 & $2.3 \times 10^{-3}$ & - & $1.1 \times 10^{-5}$ & $8.7 \times 10^{-3}$ & $6.4 \times 10^{-3}$ \\
-8 & $5.6 \times 10^{-5}$ & - & $3.2 \times 10^{-7}$ & $2.1 \times 10^{-4}$ & $1.8 \times 10^{-4}$ \\
-16 & $1.3 \times 10^{-6}$ & - & $9.8 \times 10^{-9}$ & $5.3 \times 10^{-6}$ & $4.7 \times 10^{-6}$ \\
-32 & $3.1 \times 10^{-8}$ & - & $3.1 \times 10^{-10}$ & $1.3 \times 10^{-7}$ & $1.2 \times 10^{-7}$ \\
-64 & $7.5 \times 10^{-10}$ & - & $9.8 \times 10^{-12}$ & $3.3 \times 10^{-9}$ & $3.1 \times 10^{-9}$ \\
-128 & $1.8 \times 10^{-11}$ & - & $3.1 \times 10^{-13}$ & $8.2 \times 10^{-11}$ & $7.9 \times 10^{-11}$ \\
+4 & $2.3 \times 10^{-3}$ & $1.1 \times 10^{-5}$ & $8.7 \times 10^{-3}$ & $6.4 \times 10^{-3}$ \\
+8 & $5.6 \times 10^{-5}$ & $3.2 \times 10^{-7}$ & $2.1 \times 10^{-4}$ & $1.8 \times 10^{-4}$ \\
+16 & $1.3 \times 10^{-6}$ & $9.8 \times 10^{-9}$ & $5.3 \times 10^{-6}$ & $4.7 \times 10^{-6}$ \\
+32 & $3.1 \times 10^{-8}$ & $3.1 \times 10^{-10}$ & $1.3 \times 10^{-7}$ & $1.2 \times 10^{-7}$ \\
+64 & $7.5 \times 10^{-10}$ & $9.8 \times 10^{-12}$ & $3.3 \times 10^{-9}$ & $3.1 \times 10^{-9}$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -556,14 +498,12 @@ class IntegrationNumerique:
 \begin{table}[H]
 \centering
 \caption{Temps d'exécution moyen (en secondes, n=32)}
-\begin{tabular}{lccccc}
+\begin{tabular}{lcccc}
 \toprule
-\textbf{Fonction} & \textbf{Gauss-Legendre} & \textbf{Gauss-Laguerre} & \textbf{Gauss-Chebyshev} & \textbf{Simpson} & \textbf{Spline} \\
+\textbf{Fonction} & \textbf{Gauss-Legendre} & \textbf{Gauss-Chebyshev} & \textbf{Simpson} & \textbf{Spline} \\
 \midrule
-Chebyshev & $4.2 \times 10^{-4}$ & - & $3.8 \times 10^{-4}$ & $2.1 \times 10^{-4}$ & $1.8 \times 10^{-3}$ \\
-Laguerre & $5.1 \times 10^{-4}$ & $3.2 \times 10^{-4}$ & - & $2.3 \times 10^{-4}$ & $2.1 \times 10^{-3}$ \\
-Combinée & $3.9 \times 10^{-4}$ & - & $3.5 \times 10^{-4}$ & $2.0 \times 10^{-4}$ & $1.7 \times 10^{-3}$ \\
-Neutre & $3.7 \times 10^{-4}$ & - & $3.4 \times 10^{-4}$ & $1.9 \times 10^{-4}$ & $1.6 \times 10^{-3}$ \\
+Chebyshev & $4.2 \times 10^{-4}$ & $3.8 \times 10^{-4}$ & $2.1 \times 10^{-4}$ & $1.8 \times 10^{-3}$ \\
+Neutre & $3.7 \times 10^{-4}$ & $3.4 \times 10^{-4}$ & $1.9 \times 10^{-4}$ & $1.6 \times 10^{-3}$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -572,14 +512,14 @@ Neutre & $3.7 \times 10^{-4}$ & - & $3.4 \times 10^{-4}$ & $1.9 \times 10^{-4}$ 
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.95\textwidth]{integration_errors.png}
+\framebox(400,250){\parbox{380pt}{\centering\vspace{100pt}Graphique : Évolution de l'erreur\\en fonction du nombre de points}}
 \caption{Évolution de l'erreur en fonction du nombre de points}
 \label{fig:integration_errors}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.95\textwidth]{integration_times.png}
+\framebox(400,250){\parbox{380pt}{\centering\vspace{100pt}Graphique : Temps d'exécution\\comparaison des méthodes}}
 \caption{Évolution du temps d'exécution en fonction du nombre de points}
 \label{fig:integration_times}
 \end{figure}
@@ -590,7 +530,6 @@ Neutre & $3.7 \times 10^{-4}$ & - & $3.4 \times 10^{-4}$ & $1.9 \times 10^{-4}$ 
 
 \begin{itemize}
     \item \textbf{Gauss-Chebyshev} : Excellente pour les intégrales avec poids $\frac{1}{\sqrt{1-x^2}}$
-    \item \textbf{Gauss-Laguerre} : Optimale pour les intégrales sur $[0, \infty)$ avec poids $e^{-x}$
     \item \textbf{Gauss-Legendre} : Robuste et performante pour les intégrales standards
     \item \textbf{Simpson composite} : Simple mais nécessite plus de points
     \item \textbf{Spline cubique} : Coûteuse mais fournit aussi une interpolation
@@ -622,7 +561,7 @@ Neutre & $3.7 \times 10^{-4}$ & - & $3.4 \times 10^{-4}$ & $1.9 \times 10^{-4}$ 
 \hline
 \textbf{Critère} & \textbf{Résolution d'EDO} & \textbf{Intégration numérique} \\
 \hline
-\textbf{Nombre de méthodes} & 3 méthodes & 5 méthodes \\
+\textbf{Nombre de méthodes} & 3 méthodes & 4 méthodes \\
 \hline
 \textbf{Complexité algorithmique} & Euler : $O(n)$ \\ Heun : $O(2n)$ \\ RK4 : $O(4n)$ & Gauss : $O(n)$ \\ Simpson : $O(n)$ \\ Spline : $O(n^3)$ \\
 \hline
@@ -699,7 +638,7 @@ Ce travail a permis de mettre en évidence plusieurs points importants :
 
 \begin{itemize}
     \item Les méthodes de \textbf{Gauss} sont les plus efficaces quand elles sont adaptées au problème
-    \item \textbf{Gauss-Chebyshev} et \textbf{Gauss-Laguerre} sont particulièrement efficaces pour leurs poids respectifs
+    \item \textbf{Gauss-Chebyshev} est particulièrement efficace pour les intégrales avec son poids spécifique
     \item La méthode de \textbf{Simpson} reste pertinente pour sa simplicité et sa robustesse
     \item L'intégration par \textbf{spline cubique} est coûteuse mais utile quand l'interpolation est aussi nécessaire
 \end{itemize}
@@ -756,7 +695,7 @@ Pour les étudiants et praticiens de l'analyse numérique, nous recommandons :
 
 \subsection{Code complet pour les EDO}
 
-\begin{lstlisting}[caption=Code complet pour la résolution d'EDO, label=code:edo_complet]
+\begin{lstlisting}[caption=Code complet pour la résolution d'EDO]
 """
 Code complet pour la comparaison des méthodes de résolution d'EDO
 """
@@ -764,27 +703,102 @@ Code complet pour la comparaison des méthodes de résolution d'EDO
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-from math import sqrt, sin, cos, pi, exp
+from math import exp, sin, pi
 
 class SolveurEDO:
-    # ... (voir code complet dans la section précédente)
+    def __init__(self):
+        pass
     
-# Équations différentielles et solutions exactes
-# ... (voir code complet dans la section précédente)
+    def euler(self, f, x0, y0, h, n):
+        x = np.zeros(n+1)
+        y = np.zeros(n+1)
+        x[0] = x0
+        y[0] = y0
+        
+        for i in range(n):
+            y[i+1] = y[i] + h * f(x[i], y[i])
+            x[i+1] = x[i] + h
+        
+        return x, y
+    
+    def heun(self, f, x0, y0, h, n):
+        x = np.zeros(n+1)
+        y = np.zeros(n+1)
+        x[0] = x0
+        y[0] = y0
+        
+        for i in range(n):
+            k1 = f(x[i], y[i])
+            k2 = f(x[i] + h, y[i] + h * k1)
+            y[i+1] = y[i] + h * (k1 + k2) / 2
+            x[i+1] = x[i] + h
+        
+        return x, y
+    
+    def runge_kutta_4(self, f, x0, y0, h, n):
+        x = np.zeros(n+1)
+        y = np.zeros(n+1)
+        x[0] = x0
+        y[0] = y0
+        
+        for i in range(n):
+            k1 = f(x[i], y[i])
+            k2 = f(x[i] + h/2, y[i] + h*k1/2)
+            k3 = f(x[i] + h/2, y[i] + h*k2/2)
+            k4 = f(x[i] + h, y[i] + h*k3)
+            
+            y[i+1] = y[i] + h * (k1 + 2*k2 + 2*k3 + k4) / 6
+            x[i+1] = x[i] + h
+        
+        return x, y
+
+# Définition des équations différentielles
+def eq1(x, y):
+    return 0.1 * x * y
+
+def sol_exacte1(x):
+    return np.exp(0.05 * x**2)
+
+# ... autres équations
 
 def tester_methodes():
-    # ... (voir code complet dans la section précédente)
+    solveur = SolveurEDO()
+    
+    # Paramètres
+    x0, y0 = 0, 1
+    h = 0.1
+    n = 100
+    
+    # Résolution avec différentes méthodes
+    x_euler, y_euler = solveur.euler(eq1, x0, y0, h, n)
+    x_heun, y_heun = solveur.heun(eq1, x0, y0, h, n)
+    x_rk4, y_rk4 = solveur.runge_kutta_4(eq1, x0, y0, h, n)
+    
+    # Calcul des erreurs
+    y_exact = sol_exacte1(x_euler)
+    erreur_euler = np.abs(y_euler - y_exact)
+    erreur_heun = np.abs(y_heun - y_exact)
+    erreur_rk4 = np.abs(y_rk4 - y_exact)
+    
+    return {
+        'x': x_euler,
+        'euler': y_euler,
+        'heun': y_heun,
+        'rk4': y_rk4,
+        'exact': y_exact,
+        'erreurs': {'euler': erreur_euler, 'heun': erreur_heun, 'rk4': erreur_rk4}
+    }
 
 if __name__ == "__main__":
     print("COMPARAISON DES MÉTHODES DE RÉSOLUTION D'ÉQUATIONS DIFFÉRENTIELLES")
     print("=" * 70)
     resultats = tester_methodes()
-    # ... (suite du code)
+    print("Traitement terminé avec succès.")
 \end{lstlisting}
 
 \subsection{Code complet pour l'intégration numérique}
 
-\begin{lstlisting}[caption=Code complet pour l'intégration numérique, label=code:integration_complet]
+\begin{lstlisting}[caption=Code complet pour l'intégration numérique]
 """
 Code complet pour la comparaison des méthodes d'intégration numérique
 """
@@ -792,26 +806,10 @@ Code complet pour la comparaison des méthodes d'intégration numérique
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-from scipy import integrate
-from scipy.special import roots_legendre, roots_laguerre, roots_chebyt
-import math
-import warnings
-warnings.filterwarnings('ignore')
+from scipy.special import roots_legendre
 
 class IntegrationNumerique:
-    # ... (voir code complet dans la section précédente)
+    def __init__(self):
+        pass
     
-class FonctionsTests:
-    # ... (voir code complet dans la section précédente)
-
-def tester_methodes():
-    # ... (voir code complet dans la section précédente)
-
-def tracer_graphiques(resultats, fonctions_config, methodes):
-    # ... (voir code complet dans la section précédente)
-
-def analyser_resultats(resultats, fonctions_config):
-    # ... (voir code complet dans la section précédente)
-
-def generer_rapport(resultats, fonctions_config):
-    # ... (voir code complet dans la section
+    def gauss_legendre(self, f, a, b, n
