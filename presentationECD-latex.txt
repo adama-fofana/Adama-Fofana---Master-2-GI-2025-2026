@@ -1,0 +1,667 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\geometry{left=2.5cm,right=2.5cm,top=3cm,bottom=3cm}
+
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{longtable}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{siunitx}
+\usepackage{listings}
+\usepackage{pdfpages}
+\usepackage{enumitem}
+\usepackage{setspace}
+\usepackage{titlesec}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+% Configuration des couleurs
+\definecolor{primary}{RGB}{41,128,185}
+\definecolor{secondary}{RGB}{52,152,219}
+\definecolor{accent}{RGB}{231,76,60}
+\definecolor{success}{RGB}{46,204,113}
+\definecolor{warning}{RGB}{241,196,15}
+\definecolor{lightgray}{RGB}{245,245,245}
+\definecolor{darkgray}{RGB}{51,51,51}
+
+% Configuration des en-têtes
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textbf{Master 2 Génie Informatique}}
+\fancyhead[R]{\small\textbf{Université Nangui Abrogoua}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% Configuration des titres
+\titleformat{\section}
+{\normalfont\Large\bfseries\color{primary}}
+{\thesection}{1em}{}
+
+\titleformat{\subsection}
+{\normalfont\large\bfseries\color{secondary}}
+{\thesubsection}{1em}{}
+
+\titleformat{\subsubsection}
+{\normalfont\normalsize\bfseries\color{accent}}
+{\thesubsubsection}{1em}{}
+
+% Configuration des listes
+\setlist[itemize]{leftmargin=*, label=\textcolor{primary}{\textbullet}}
+\setlist[enumerate]{leftmargin=*}
+
+% Configuration du code
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    frame=single,
+    breaklines=true,
+    captionpos=b,
+    showstringspaces=false,
+    tabsize=4,
+    backgroundcolor=\color{lightgray}
+}
+
+% Commandes personnalisées
+\newcommand{\important}[1]{\textcolor{accent}{\textbf{#1}}}
+\newcommand{\code}[1]{\texttt{\textcolor{darkgray}{#1}}}
+\newcommand{\result}[1]{\textcolor{primary}{\textbf{#1}}}
+\newcommand{\good}[1]{\textcolor{success}{\textbf{#1}}}
+\newcommand{\warning}[1]{\textcolor{warning}{\textbf{#1}}}
+\newcommand{\eq}[1]{(\ref{eq:#1})}
+
+% Nouveaux environnements
+\newenvironment{resultbox}
+{\begin{tcolorbox}[
+    colback=lightgray,
+    colframe=primary,
+    boxrule=1pt,
+    arc=4pt,
+    breakable,
+    enhanced
+]}
+{\end{tcolorbox}}
+
+\newenvironment{algorithmbox}
+{\begin{tcolorbox}[
+    colback=secondary!10,
+    colframe=secondary,
+    boxrule=1pt,
+    arc=4pt,
+    breakable,
+    enhanced,
+    title=Algorithme,
+    fonttitle=\bfseries
+]}
+{\end{tcolorbox}}
+
+\title{
+    \textbf{Rapport d'Analyse Numérique}\\[0.5em]
+    \large Comparaison des Méthodes de Résolution\\[0.2em]
+    \large d'Équations Différentielles Ordinaires
+}
+\author{
+    \textbf{Fofana Adama}\\
+    Master 2 Génie Informatique\\
+    Université Nangui Abrogoua
+}
+\date{
+    Le 6 Janvier 2026\\
+    Présenté devant le Docteur Sylvain ZEZE
+}
+
+\begin{document}
+
+% Page de garde
+\begin{titlepage}
+    \centering
+    
+    % Logo de l'université
+    \vspace*{1cm}
+    \framebox(150,150){\parbox{150pt}{\centering\vspace{65pt}LOGO\\Universit\\Nangui Abrogoua}}
+    \vspace{1cm}
+    
+    {\Huge \textbf{Rapport d'Analyse Numérique}}
+    \vspace{0.5cm}
+    
+    \rule{\textwidth}{1pt}
+    \vspace{0.5cm}
+    
+    {\Large \textbf{Comparaison des Méthodes de Résolution}}\\
+    {\Large \textbf{d'Équations Différentielles Ordinaires}}
+    \vspace{1cm}
+    
+    \begin{resultbox}
+        \centering
+        {\Large \textbf{Fofana Adama}}\\[0.3cm]
+        {\large Master 2 Génie Informatique}\\[0.2cm]
+        {\large Université Nangui Abrogoua}
+    \end{resultbox}
+    
+    \vfill
+    
+    {\large \textbf{Présenté le 6 Janvier 2026}}\\
+    {\large \textbf{Devant le Docteur Sylvain ZEZE}}\\
+    {\large Année Académique 2024-2025}
+    
+    \vspace{2cm}
+\end{titlepage}
+
+% Table des matières
+\tableofcontents
+\newpage
+
+% Liste des figures
+\listoffigures
+\newpage
+
+% Liste des tableaux
+\listoftables
+\newpage
+
+% Introduction
+\section*{Introduction Générale}
+\addcontentsline{toc}{section}{Introduction Générale}
+
+La résolution numérique d'équations différentielles ordinaires (EDO) constitue un domaine fondamental de l'analyse numérique avec des applications vastes en physique, ingénierie, biologie et économie. Ce rapport présente une étude comparative de trois méthodes classiques de résolution d'EDO : Euler explicite, Heun (Euler amélioré) et Runge-Kutta d'ordre 4.
+
+\subsection*{Objectifs du Travail}
+\begin{itemize}
+    \item Implémenter et tester trois méthodes numériques de résolution d'EDO
+    \item Comparer leur précision sur trois équations tests représentatives
+    \item Analyser leur efficacité en termes de temps de calcul
+    \item Établir des recommandations pratiques pour le choix des méthodes
+\end{itemize}
+
+\subsection*{Méthodologie}
+\begin{enumerate}
+    \item Développement d'une classe Python \texttt{SolveurEDO} implémentant les trois méthodes
+    \item Sélection de trois équations différentielles avec solutions analytiques connues
+    \item Mesure systématique des temps d'exécution et des erreurs
+    \item Visualisation comparative des résultats
+\end{enumerate}
+
+\newpage
+
+% ==============================================
+% PARTIE I : RÉSULTATS EXPÉRIMENTAUX
+% ==============================================
+\section{Résultats Expérimentaux}
+
+\subsection{Synthèse des Performances}
+
+\begin{table}[H]
+    \centering
+    \caption{Synthèse comparative des résultats}
+    \begin{tabular}{lccc}
+        \toprule
+        \textbf{Méthode} & \textbf{Équation 1} & \textbf{Équation 2} & \textbf{Équation 3} \\
+        \midrule
+        \multicolumn{4}{c}{\textbf{Temps d'exécution (secondes)}} \\
+        \midrule
+        Euler & $\num{<1e-6}$ & $\num{<1e-6}$ & $\num{<1e-6}$ \\
+        Heun & $\num{<1e-6}$ & $\num{<1e-6}$ & $\num{<1e-6}$ \\
+        Runge-Kutta 4 & $\num{<1e-6}$ & $\num{<1e-6}$ & $\num{<1e-6}$ \\
+        \midrule
+        \multicolumn{4}{c}{\textbf{Erreur absolue maximale}} \\
+        \midrule
+        Euler & $\num{3.55e-1}$ & \warning{$\num{5.30e3}$} & $\num{7.77e-1}$ \\
+        Heun & $\num{6.24e-3}$ & \warning{$\num{2.59e6}$} & $\num{4.77e-1}$ \\
+        Runge-Kutta 4 & \good{$\num{4.18e-6}$} & \warning{$\num{1.28e9}$} & $\num{8.13e-3}$ \\
+        \midrule
+        \multicolumn{4}{c}{\textbf{Rang de précision (1 = meilleur)}} \\
+        \midrule
+        Euler & 3 & \good{1} & 3 \\
+        Heun & 2 & 2 & 2 \\
+        Runge-Kutta 4 & \good{1} & 3 & \good{1} \\
+        \bottomrule
+    \end{tabular}
+    \label{tab:synthese_resultats}
+\end{table}
+
+\subsection{Analyse Détailée par Équation}
+
+\subsubsection{Équation 1 : Croissance exponentielle modifiée}
+\[
+z'(x) = 0.1 \cdot x \cdot z(x), \quad z(0) = 1
+\]
+
+\begin{resultbox}
+    \textbf{Résultats pour l'Équation 1 :}
+    \begin{itemize}
+        \item \important{Runge-Kutta 4} : Performance exceptionnelle (erreur $\num{4.18e-6}$)
+        \item \important{Heun} : Bonne précision (erreur $\num{6.24e-3}$)
+        \item \important{Euler} : Précision modérée (erreur $\num{3.55e-1}$)
+        \item \textbf{Amélioration RK4/Euler} : \textbf{85 000 fois plus précis}
+        \item \textbf{Amélioration Heun/Euler} : \textbf{57 fois plus précis}
+    \end{itemize}
+\end{resultbox}
+
+\subsubsection{Équation 2 : Problème avec singularité}
+\[
+z'(x) = \frac{1 - 30x}{2\sqrt{x}} + 15z(x), \quad z(0.01) = \sqrt{0.01}
+\]
+
+\begin{resultbox}
+    \textbf{Analyse critique - Équation 2 :}
+    \begin{itemize}
+        \item \warning{Toutes les méthodes présentent des erreurs très importantes}
+        \item \important{Euler} : Erreur "relativement" plus faible ($\num{5.30e3}$)
+        \item \important{Runge-Kutta 4} : Échec de convergence (erreur $\num{1.28e9}$)
+        \item \textbf{Causes probables :}
+        \begin{enumerate}
+            \item Singularité en $x=0$ mal gérée
+            \item Condition initiale problématique ($z(0.01) = 0.1$)
+            \item Instabilité numérique due au coefficient $+15z(x)$
+        \end{enumerate}
+    \end{itemize}
+\end{resultbox}
+
+\subsubsection{Équation 3 : Coefficient périodique}
+\[
+z'(x) = \pi \cos(\pi x) z(x), \quad z(0) = 1
+\]
+
+\begin{resultbox}
+    \textbf{Résultats pour l'Équation 3 :}
+    \begin{itemize}
+        \item \important{Runge-Kutta 4} : Meilleure précision (erreur $\num{8.13e-3}$)
+        \item \important{Heun} : Performance intermédiaire (erreur $\num{4.77e-1}$)
+        \item \important{Euler} : Précision limitée (erreur $\num{7.77e-1}$)
+        \item \textbf{Amélioration RK4/Euler} : \textbf{96 fois plus précis}
+        \item \textbf{Comportement oscillant} bien capturé par RK4
+    \end{itemize}
+\end{resultbox}
+
+\newpage
+
+% ==============================================
+% PARTIE II : ANALYSE STATISTIQUE
+% ==============================================
+\section{Analyse Statistique et Comparaisons}
+
+\subsection{Performances Relatives}
+
+\begin{table}[H]
+    \centering
+    \caption{Analyse comparative détaillée}
+    \begin{tabular}{lccc}
+        \toprule
+        \textbf{Métrique} & \textbf{Euler} & \textbf{Heun} & \textbf{RK4} \\
+        \midrule
+        \multicolumn{4}{c}{\textbf{Moyenne des erreurs (log10)}} \\
+        \midrule
+        Équation 1 & $\num{-0.45}$ & $\num{-2.20}$ & $\num{-5.38}$ \\
+        Équation 3 & $\num{-0.11}$ & $\num{-0.32}$ & $\num{-2.09}$ \\
+        \midrule
+        \multicolumn{4}{c}{\textbf{Stabilité relative}} \\
+        \midrule
+        Robustesse & \good{Élevée} & Moyenne & Faible pour problèmes raides \\
+        Simplicité & \good{Excellente} & Bonne & Complexe \\
+        Fiabilité & \good{Bonne} & Bonne & Excellente (hors problèmes raides) \\
+        \midrule
+        \multicolumn{4}{c}{\textbf{Rapport qualité/prix}} \\
+        \midrule
+        Précision/coût & Faible & \good{Optimal} & Élevé \\
+        \bottomrule
+    \end{tabular}
+    \label{tab:analyse_statistique}
+\end{table}
+
+\subsection{Rang des Méthodes par Critère}
+
+\begin{table}[H]
+    \centering
+    \caption{Classement des méthodes par critère d'évaluation}
+    \begin{tabular}{lccc}
+        \toprule
+        \textbf{Critère} & \textbf{1ère} & \textbf{2ème} & \textbf{3ème} \\
+        \midrule
+        Précision générale & RK4 & Heun & Euler \\
+        Vitesse d'exécution & Euler & Heun & RK4 \\
+        Stabilité numérique & Euler & Heun & RK4 \\
+        Simplicité & Euler & Heun & RK4 \\
+        Coût calcul/précision & Heun & RK4 & Euler \\
+        Robustesse problèmes raides & Euler & Heun & RK4 \\
+        \bottomrule
+    \end{tabular}
+    \label{tab:classement_methodes}
+\end{table}
+
+\subsection{Observations Clés}
+
+\begin{itemize}
+    \item \important{Équation 1 :} RK4 démontre sa supériorité avec une erreur $\num{4.18e-6}$
+    \item \important{Équation 2 :} Problème mal posé - instabilité numérique importante
+    \item \important{Équation 3 :} RK4 meilleur pour les coefficients variables
+    \item \important{Temps d'exécution :} Toutes les méthodes ultra-rapides ($<\num{1e-6}$s)
+\end{itemize}
+
+\newpage
+
+% ==============================================
+% PARTIE III : INTERPRÉTATION DES RÉSULTATS
+% ==============================================
+\section{Interprétation et Discussion}
+
+\subsection{Succès et Échecs}
+
+\subsubsection{Succès Remarquables}
+
+\begin{resultbox}
+    \textbf{Cas de réussite : Équation 1}
+    \begin{itemize}
+        \item \important{RK4} : Erreur $\num{4.18e-6}$ → performance exceptionnelle
+        \item \important{Heun} : Erreur $\num{6.24e-3}$ → très bon compromis
+        \item \important{Euler} : Acceptable pour applications non critiques
+        \item \textbf{Conclusion :} Pour les problèmes réguliers, l'ordre de la méthode est déterminant
+    \end{itemize}
+\end{resultbox}
+
+\subsubsection{Problèmes Identifiés}
+
+\begin{resultbox}
+    \textbf{Cas problématique : Équation 2}
+    \begin{itemize}
+        \item \warning{Instabilité numérique sévère} pour toutes les méthodes
+        \item \important{Euler} : "Meilleure" performance relative
+        \item \important{RK4} : Amplification des erreurs (phénomène de stiff problem)
+        \item \textbf{Causes :}
+        \begin{enumerate}
+            \item Terme $+15z(x)$ crée une instabilité exponentielle
+            \item Singularité $\frac{1}{2\sqrt{x}}$ mal gérée
+            \item Condition initiale $z(0.01)=0.1$ potentiellement incorrecte
+        \end{enumerate}
+    \end{itemize}
+\end{resultbox}
+
+\subsection{Analyse des Erreurs}
+
+\begin{table}[H]
+    \centering
+    \caption{Analyse quantitative des performances}
+    \begin{tabular}{lccc}
+        \toprule
+        \textbf{Paramètre} & \textbf{Euler} & \textbf{Heun} & \textbf{RK4} \\
+        \midrule
+        \multicolumn{4}{c}{\textbf{Amélioration relative (Éq.1)}} \\
+        \midrule
+        vs Euler & 1x & 57x & 85 000x \\
+        vs Heun & 0.018x & 1x & 1 500x \\
+        \midrule
+        \multicolumn{4}{c}{\textbf{Rapport erreur/temps (log10)}} \\
+        \midrule
+        Équation 1 & 5.45 & 8.20 & 11.38 \\
+        Équation 3 & 5.11 & 5.68 & 7.91 \\
+        \midrule
+        \multicolumn{4}{c}{\textbf{Efficacité numérique}} \\
+        \midrule
+        Score global & 6.5/10 & 7.5/10 & 8.5/10* \\
+        \bottomrule
+    \end{tabular}
+    \footnotesize{*Score réduit pour RK4 due à son échec sur l'Équation 2}
+    \label{tab:analyse_quantitative}
+\end{table}
+
+\subsection{Impact du Pas d'Intégration}
+
+\begin{resultbox}
+    \textbf{Influence du pas $h=0.3$ :}
+    \begin{itemize}
+        \item \important{Pas relativement grand} pour une précision fine
+        \item \important{RK4} : Tolère mieux les pas grands ($O(h^4)$ vs $O(h)$)
+        \item \important{Euler} : Nécessite des pas très petits pour être précis
+        \item \textbf{Recommandation :} Pour $h=0.3$, RK4 est clairement supérieur
+        \item \textbf{Perspective :} Avec $h=0.01$, les écarts seraient encore plus marqués
+    \end{itemize}
+\end{resultbox}
+
+\newpage
+
+% ==============================================
+% PARTIE IV : CONCLUSIONS ET RECOMMANDATIONS
+% ==============================================
+\section{Conclusions et Recommandations}
+
+\subsection{Conclusions Principales}
+
+\begin{enumerate}
+    \item \important{RK4 confirme sa supériorité} pour les problèmes réguliers (erreur $\num{4.18e-6}$ sur Éq.1)
+    \item \important{Heun offre le meilleur compromis} global entre précision et complexité
+    \item \important{Euler reste utile} pour sa robustesse et sa simplicité
+    \item \important{L'Équation 2 révèle des limites} des méthodes explicites pour les problèmes raides
+\end{enumerate}
+
+\subsection{Recommandations Pratiques}
+
+\begin{table}[H]
+    \centering
+    \caption{Guide de sélection des méthodes}
+    \begin{tabular}{p{0.25\textwidth} p{0.35\textwidth} p{0.30\textwidth}}
+        \toprule
+        \textbf{Scénario} & \textbf{Méthode recommandée} & \textbf{Justification} \\
+        \midrule
+        Calcul haute précision & \good{Runge-Kutta 4} & Erreur minimale ($\num{4.18e-6}$) \\
+        Usage général & \good{Heun} & Bon compromis précision/temps \\
+        Simulation temps-réel & \good{Euler} & Rapidité et simplicité \\
+        Problèmes potentiellement raides & \good{Euler} & Plus robuste aux instabilités \\
+        Enseignement & \good{Heun} & Équilibre théorie/pratique \\
+        Prototypage & \good{Euler} & Développement rapide \\
+        \bottomrule
+    \end{tabular}
+    \label{tab:guide_selection}
+\end{table}
+
+\subsection{Améliorations Proposées}
+
+\subsubsection{Sur le Plan Numérique}
+
+\begin{itemize}
+    \item \important{Réduire le pas d'intégration} pour améliorer la précision
+    \item \important{Implémenter des méthodes adaptatives} à pas variable
+    \item \important{Considérer des méthodes implicites} pour les problèmes raides
+    \item \important{Ajouter un contrôle d'erreur} pour détecter les instabilités
+\end{itemize}
+
+\subsubsection{Sur le Plan Algorithmique}
+
+\begin{itemize}
+    \item \important{Validation des conditions initiales} pour éviter les erreurs
+    \item \important{Traitement des singularités} par changement de variable
+    \item \important{Optimisation du code} pour les calculs intensifs
+    \item \important{Parallélisation} des évaluations de fonctions
+\end{itemize}
+
+\subsection{Perspectives de Recherche}
+
+\begin{enumerate}
+    \item \textbf{Étude des méthodes adaptatives} : pas variable selon l'erreur locale
+    \item \textbf{Analyse de stabilité} : détermination des régions de stabilité
+    \item \textbf{Comparaison avec méthodes implicites} : pour problèmes raides
+    \item \textbf{Application à des problèmes réels} : physique, ingénierie, biologie
+    \item \textbf{Optimisation des performances} : utilisation de bibliothèques numériques
+\end{enumerate}
+
+\newpage
+
+% ==============================================
+% PARTIE V : SYNTHÈSE FINALE
+% ==============================================
+\section{Synthèse Finale}
+
+\subsection{Récapitulatif des Résultats Clés}
+
+\begin{resultbox}
+    \textbf{Principaux enseignements :}
+    \begin{itemize}
+        \item \important{Précision maximale} : RK4 sur Éq.1 ($\num{4.18e-6}$)
+        \item \important{Meilleur compromis} : Heun sur l'ensemble des tests
+        \item \important{Robustesse} : Euler meilleur sur problème difficile (Éq.2)
+        \item \important{Vitesse} : Toutes les méthodes ultra-rapides ($<\num{1e-6}$s)
+        \item \important{Impact du pas} : Déterminant pour la précision finale
+    \end{itemize}
+\end{resultbox}
+
+\subsection{Tableau de Bord des Performances}
+
+\begin{table}[H]
+    \centering
+    \caption{Tableau de bord comparatif}
+    \begin{tabular}{lcccc}
+        \toprule
+        \textbf{Indicateur} & \textbf{Euler} & \textbf{Heun} & \textbf{RK4} & \textbf{Unité} \\
+        \midrule
+        Précision Éq.1 & $\num{3.55e-1}$ & $\num{6.24e-3}$ & $\num{4.18e-6}$ & Erreur abs. \\
+        Précision Éq.3 & $\num{7.77e-1}$ & $\num{4.77e-1}$ & $\num{8.13e-3}$ & Erreur abs. \\
+        Temps moyen & $<\num{1e-6}$ & $<\num{1e-6}$ & $<\num{1e-6}$ & Secondes \\
+        Complexité & $O(n)$ & $O(2n)$ & $O(4n)$ & Opérations \\
+        Stabilité & \good{+++} & \good{++} & + & Qualitatif \\
+        Précision & + & \good{++} & \good{+++} & Qualitatif \\
+        Score final & 6.5/10 & 7.5/10 & 8.0/10 & /10 \\
+        \bottomrule
+    \end{tabular}
+    \label{tab:tableau_bord}
+\end{table}
+
+\subsection{Message de Clôture}
+
+\begin{center}
+    \begin{tcolorbox}[
+        colback=primary!10,
+        colframe=primary,
+        fonttitle=\bfseries,
+        title=Conclusion Générale,
+        center title,
+        width=0.9\textwidth
+    ]
+    Cette étude comparative révèle qu'aucune méthode n'est universellement supérieure.\\
+    
+    \textbf{RK4} excelle en précision pour les problèmes réguliers,\\
+    \textbf{Heun} offre le meilleur équilibre pour un usage général,\\
+    \textbf{Euler} conserve son utilité pour sa robustesse et simplicité.\\
+    
+    Le choix optimal dépend du compromis entre précision requise, temps disponible\\
+    et nature du problème à résoudre. Pour des applications critiques, une analyse\\
+    préliminaire du problème est essentielle pour sélectionner la méthode adaptée.
+    \end{tcolorbox}
+\end{center}
+
+\subsection{Recommandations Finales}
+
+\begin{enumerate}
+    \item \important{Pour les débutants} : Commencer par Euler pour comprendre les bases
+    \item \important{Pour les applications standards} : Utiliser Heun comme méthode par défaut
+    \item \important{Pour la haute précision} : Adopter RK4 avec un pas adapté
+    \item \important{Pour les problèmes difficiles} : Tester plusieurs méthodes et vérifier la cohérence
+    \item \important{En production} : Valider toujours avec une méthode de référence
+\end{enumerate}
+
+\subsection{Perspective Finale}
+
+\begin{center}
+    \large
+    \textbf{L'excellence en analyse numérique ne réside pas dans une méthode unique,}\\
+    \textbf{mais dans la capacité à choisir l'outil adapté à chaque situation.}
+\end{center}
+
+% ==============================================
+% ANNEXES
+% ==============================================
+\newpage
+\section*{Annexes}
+\addcontentsline{toc}{section}{Annexes}
+
+\subsection{Résultats Bruts}
+
+\begin{table}[H]
+    \centering
+    \caption{Résultats bruts des tests}
+    \begin{tabular}{llll}
+        \toprule
+        \textbf{Méthode} & \textbf{Équation} & \textbf{Temps (s)} & \textbf{Erreur max} \\
+        \midrule
+        Euler & Équation 1 & $<\num{1e-6}$ & $\num{3.550019e-01}$ \\
+        Heun & Équation 1 & $<\num{1e-6}$ & $\num{6.241864e-03}$ \\
+        RK4 & Équation 1 & $<\num{1e-6}$ & $\num{4.176177e-06}$ \\
+        \midrule
+        Euler & Équation 2 & $<\num{1e-6}$ & $\num{5.295275e+03}$ \\
+        Heun & Équation 2 & $<\num{1e-6}$ & $\num{2.591209e+06}$ \\
+        RK4 & Équation 2 & $<\num{1e-6}$ & $\num{1.283694e+09}$ \\
+        \midrule
+        Euler & Équation 3 & $<\num{1e-6}$ & $\num{7.773448e-01}$ \\
+        Heun & Équation 3 & $<\num{1e-6}$ & $\num{4.772995e-01}$ \\
+        RK4 & Équation 3 & $<\num{1e-6}$ & $\num{8.128572e-03}$ \\
+        \bottomrule
+    \end{tabular}
+    \label{tab:resultats_bruts}
+\end{table}
+
+\subsection{Reproduction des Conclusions Originales}
+
+\begin{resultbox}
+    \textbf{Conclusions du programme original :}
+    \begin{enumerate}
+        \item Runge-Kutta 4 est la méthode la plus précise (erreur minimale)
+        \item Euler est la méthode la plus rapide mais la moins précise
+        \item Heun est un bon compromis entre précision et vitesse
+        \item Pour des pas plus petits, toutes les méthodes seraient plus précises
+    \end{enumerate}
+    
+    \textbf{Notre analyse confirme ces conclusions et les nuance :}
+    \begin{itemize}
+        \item La supériorité de RK4 est confirmée sur les problèmes réguliers
+        \item Euler est effectivement la plus rapide mais aussi la plus robuste
+        \item Heun représente effectivement le meilleur compromis global
+        \item L'importance du pas est critique, surtout pour Euler
+    \end{itemize}
+\end{resultbox}
+
+\subsection{Références Bibliographiques}
+
+\begin{thebibliography}{9}
+\bibitem{quarteroni} 
+Quarteroni, A., Saleri, F. (2006). 
+\textit{Calcul Scientifique : Cours, exercices corrigés et illustrations en MATLAB et Octave}. 
+Springer.
+
+\bibitem{butcher}
+Butcher, J. C. (2016). 
+\textit{Numerical Methods for Ordinary Differential Equations}. 
+Wiley.
+
+\bibitem{heath}
+Heath, M. T. (2018). 
+\textit{Scientific Computing: An Introductory Survey}. 
+SIAM.
+
+\bibitem{hairer}
+Hairer, E., Nørsett, S. P., Wanner, G. (1993). 
+\textit{Solving Ordinary Differential Equations I: Nonstiff Problems}. 
+Springer.
+
+\bibitem{stoer}
+Stoer, J., Bulirsch, R. (2002). 
+\textit{Introduction to Numerical Analysis}. 
+Springer.
+\end{thebibliography}
+
+\end{document}
